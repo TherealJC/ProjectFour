@@ -39,8 +39,38 @@ function addTransactionList(transaction) {
     const item = document.createElement('li')
 
     item.classList.add(transaction.amount < 0 ? 'minus' : 'plus')  //add class based on value of amount
-    // item.innerHTML = 
-    // $(transaction.text) <span>$(sign)$(Math.abs(transaction.amount))</span>
+    item.innerHTML = 
+    `${transaction.text} <span>${sign}${Math.abs(transaction.amount)}</span>
+    <button class="delete-btn" onclick="removeItem{$(transaction.id)}">x</button>
+    `
+    list.appendChild(item)
+}
 
-    //This is where the class became unfollowable, gg
+//Update total
+function updateValues() {
+    const amounts = transactions.map(transaction => transaction.amount)
+
+    const total = amounts.reduce((acc,item) =>(acc += item), 0).toFixed(2)
+
+    const income = amounts
+    .filter(item => item > 0)
+    .reduce((acc, item) => (acc += item), 0).toFixed(2)
+
+    const expense = (amounts
+    .filter(item => item > 0)
+    .reduce((acc, item) => (acc += item), 0) + -1).toFixed(2)
+
+    balance.innerText = `S${total}`
+    money_plus.innerText = `S${income}`
+    money_minus.innerText = `S${expense}`
+}
+
+//Remove Item
+function removeItem(id) {
+    transactions = transactions.filter(transaction => transaction.id !== id)
+}
+
+//Update Local Storage
+function updateLocalStorage() {
+    localStorage.setItem('transactions', JSON.stringify(transactions))
 }
