@@ -8,15 +8,14 @@ const text = document.getElementById('text')
 const amount = document.getElementById('amount')
 
 //LocalStorage is for Transactions, balance, incoming, outgoing.
-const localStorageTransactions = 
-JSON.parse(localStorageTransactions.getItem('transactions')) //JSON.parse takes any/all JSON (Javascript Object Notation) and converts it into an object.
+const localStorageTransactions = JSON.parse(localStorageTransactions.getItem('transactions')) //JSON.parse takes any/all JSON (Javascript Object Notation) and converts it into an object.
 let transactions = localStorage.getItem('transactions') !== null ? localStorageTransactions: []
 //Let var transactions equal the localstorage transaction value, if inequal to null, show array ???
 
 //Add Transaction
 function addTransaction(e) {
     e.preventDefault()
-    if (text.nodeValue.trim() === '' || amount.value.trim() === '') { //If input value is empty, alert user (trim whitespace before testing)
+    if (text.value.trim() === '' || amount.value.trim() === '') { //If input value is empty, alert user (trim whitespace before testing)
         alert('Yeah nah bro, you did it wrong, try again')
     } else {
         const transaction = {
@@ -25,6 +24,13 @@ function addTransaction(e) {
             amount: +amount.value //The PLUS converts the string to a number
         } 
         transactions.push(transaction)
+
+        addTransactionList(transaction) //generate list
+        updateValues()                  //update values
+        updateLocalStorage()            //Update Local Storage
+
+        text.value=''
+        amount.value=''
     } 
 }
 
@@ -40,11 +46,13 @@ function addTransactionList(transaction) {
 
     item.classList.add(transaction.amount < 0 ? 'minus' : 'plus')  //add class based on value of amount
     item.innerHTML = 
-    `${transaction.text} <span>${sign}${Math.abs(transaction.amount)}</span>
-    <button class="delete-btn" onclick="removeItem{$(transaction.id)}">x</button>
     `
+    ${transaction.text} <span>${sign}${Math.abs(transaction.amount)}</span>
+    <button class="delete-btn" onclick="removeItem(${transaction.id})">x</button>
+    ` // Math.abs is to get rid of the the minus sign in the amount property  
+  
     list.appendChild(item)
-}
+  }
 
 //Update total
 function updateValues() {
@@ -68,9 +76,23 @@ function updateValues() {
 //Remove Item
 function removeItem(id) {
     transactions = transactions.filter(transaction => transaction.id !== id)
+    updateLocalStorage()
+    init()
 }
 
 //Update Local Storage
 function updateLocalStorage() {
     localStorage.setItem('transactions', JSON.stringify(transactions))
 }
+
+//init app
+function init() {
+    list.innerHTML=''
+    transactions.forEach(addTransactionList) // looping through the array and adding it to html list
+    updateValues() //calling amounts array
+}
+
+init()
+
+//Add Transaction
+form.addEventListener('submit', addTransaction)
